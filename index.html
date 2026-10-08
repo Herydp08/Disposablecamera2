@@ -4,23 +4,25 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Fraunces:ital,wght@1,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0c0b0a;
-    --panel: #161412;
-    --border: #292420;
-    --ink: #f4ecdf;
-    --muted: #8c8275;
-    --accent: #ff6b35;
-    --accent-glow: rgba(255, 107, 53, 0.35);
+    --bg: #121210;
+    --body-bg: #1c1a17;
+    --panel: #2b2722;
+    --border: #423c34;
+    --ink: #f7f1e5;
+    --muted: #a39685;
+    --accent: #ff5e00;
+    --accent-glow: rgba(255, 94, 0, 0.4);
+    --yellow-led: #f4d03f;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: 'Space Mono', monospace; }
 
   .app {
-    max-width: 440px;
+    max-width: 480px;
     margin: 0 auto;
     min-height: 100%;
     display: flex;
@@ -33,45 +35,86 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 4px 6px;
+    padding: 4px 2px;
   }
-  .brand h2 {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 19px;
-    color: var(--ink);
+
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #ff5e00, #ffb07c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
   }
-  .brand p {
-    font-size: 10px;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-    margin-top: 1px;
-  }
-  .date-badge {
-    font-size: 11px;
+
+  .link {
     color: var(--accent);
+    text-decoration: none;
+    font-size: 11px;
+    border: 1px solid var(--accent);
+    padding: 6px 12px;
+    border-radius: 99px;
     font-weight: 700;
+    background: rgba(255, 94, 0, 0.05);
+    transition: all 0.2s;
+  }
+  .link:active { background: var(--accent); color: #000; }
+
+  /* Body Kamera Gaya Y2K Retro */
+  .camera {
+    background: linear-gradient(145deg, #2d2924, #1a1815);
+    border-radius: 28px;
+    padding: 16px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+    border: 1px solid var(--border);
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    padding: 0 4px;
+    text-transform: uppercase;
     letter-spacing: 1px;
   }
 
-  .camera-box {
-    background: var(--panel);
-    border-radius: 28px;
-    padding: 12px;
-    border: 1px solid var(--border);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  .rec-indicator {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 6px;
+    color: var(--yellow-led);
+  }
+  .rec-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--yellow-led);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--yellow-led);
+    animation: blink 2s infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .counter {
+    background: #090908;
+    color: var(--accent);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    border: 1px solid #332d26;
   }
 
   .viewfinder {
     position: relative;
     aspect-ratio: 3/4;
-    border-radius: 20px;
+    border-radius: 16px;
     overflow: hidden;
     background: #000;
-    border: 2px solid var(--border);
+    border: 3px solid #090908;
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
   }
 
   video, #preview {
@@ -82,8 +125,9 @@
   }
   #preview { position: absolute; inset: 0; display: none; }
 
+  /* Efek Grain & Flash */
   .grain {
-    position: absolute; inset: 0; pointer-events: none; opacity: 0.22; mix-blend-mode: overlay;
+    position: absolute; inset: 0; pointer-events: none; opacity: 0.25; mix-blend-mode: overlay;
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='n'><feTurbulence baseFrequency='.8' numOctaves='3'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.7'/></svg>");
   }
   .flash {
@@ -91,114 +135,124 @@
   }
   .flash.on { opacity: 1; transition: none; }
 
-  .lens-switcher {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
+  /* Filter Slider */
+  .filters {
     display: flex;
-    background: rgba(12, 11, 10, 0.75);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.1);
-    padding: 4px 8px;
-    border-radius: 99px;
-    gap: 6px;
-    z-index: 3;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 14px 2px 4px;
+    scrollbar-width: none;
   }
-  .lens-btn {
-    background: transparent;
-    border: none;
+  .filters::-webkit-scrollbar { display: none; }
+  .filters button {
+    flex: 0 0 auto;
+    background: var(--panel);
     color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 7px 14px;
     font: inherit;
     font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 99px;
-    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     transition: all 0.2s;
   }
-  .lens-btn.active {
-    background: var(--ink);
-    color: #0c0b0a;
+  .filters button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
     font-weight: 700;
+    box-shadow: 0 0 12px var(--accent-glow);
   }
 
-  .control-panel {
-    background: #11100e;
-    border-radius: 20px;
-    padding: 12px 16px;
+  /* Tombol Kontrol Utama */
+  .controls {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
     align-items: center;
-    border: 1px solid var(--border);
+    padding: 16px 0 4px;
   }
 
-  .btn-icon {
-    width: 44px;
-    height: 44px;
+  .small {
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
     background: var(--panel);
     border: 1px solid var(--border);
     color: var(--ink);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     font-size: 16px;
-    cursor: pointer;
-    transition: transform 0.1s;
-  }
-  .btn-icon:active { transform: scale(0.92); }
-  .btn-icon.active-flash { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
-
-  .counter-badge {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    background: var(--panel);
-    border: 1px solid var(--border);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: default;
-  }
-  .counter-num { font-size: 15px; font-weight: 700; color: var(--accent); line-height: 1; }
-  .counter-lbl { font-size: 8px; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
-
-  .shutter-main {
-    width: 72px;
-    height: 72px;
-    border-radius: 50%;
-    border: 3px solid #2e2621;
-    background: radial-gradient(circle at 35% 30%, #ff8a55, var(--accent) 60%, #b84102);
-    box-shadow: 0 5px 0 #6e2501, 0 8px 20px var(--accent-glow);
     cursor: pointer;
     transition: transform 0.1s;
   }
-  .shutter-main:active { transform: translateY(3px); box-shadow: 0 2px 0 #6e2501; }
+  .small:active { transform: scale(0.92); }
+  .small.active-flash { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
 
-  .actions { display: none; gap: 10px; }
+  .shutter {
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    border: 4px solid #38322c;
+    background: radial-gradient(circle at 35% 30%, #ff8a55, var(--accent) 60%, #b84102);
+    box-shadow: 0 6px 0 #6e2501, 0 10px 20px rgba(255,94,0,0.3);
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+  }
+  .shutter:active {
+    transform: translateY(4px);
+    box-shadow: 0 2px 0 #6e2501, 0 5px 10px rgba(255,94,0,0.2);
+  }
+
+  .actions { display: none; gap: 10px; margin-top: 4px; }
   .actions button {
-    flex: 1; padding: 13px; border-radius: 14px; border: none; font: inherit; font-weight: 700; font-size: 12px; text-transform: uppercase; cursor: pointer;
+    flex: 1;
+    padding: 13px;
+    border-radius: 12px;
+    border: none;
+    font: inherit;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    cursor: pointer;
   }
   .retake { background: var(--panel); color: var(--muted); border: 1px solid var(--border); }
   .save { background: var(--accent); color: #fff; box-shadow: 0 4px 15px var(--accent-glow); }
 
-  .status { text-align: center; font-size: 11px; color: var(--muted); min-height: 16px; }
+  .status {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    min-height: 16px;
+    letter-spacing: 0.5px;
+  }
 
+  /* Modal Input Nama Tamu */
   .modal {
-    position: fixed; inset: 0; background: rgba(12,11,10,0.9); backdrop-filter: blur(10px);
+    position: fixed; inset: 0; background: rgba(10,10,9,0.85); backdrop-filter: blur(8px);
     display: flex; align-items: center; justify-content: center; padding: 24px; z-index: 9;
   }
   .card {
-    background: var(--panel); padding: 24px; border-radius: 24px; width: 100%; max-width: 340px; text-align: center; border: 1px solid var(--border);
+    background: var(--body-bg);
+    padding: 24px;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 340px;
+    text-align: center;
+    border: 1px solid var(--border);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.8);
   }
-  .card h2 { font-family: 'Fraunces', serif; font-style: italic; font-size: 22px; margin-bottom: 6px; }
-  .card p { font-size: 11px; color: var(--muted); margin-bottom: 16px; }
+  .card h2 { font-family: 'Syne', sans-serif; font-size: 20px; color: var(--ink); margin-bottom: 6px; }
+  .card p { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
   .card input {
-    width: 100%; margin-bottom: 16px; padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); background: #0c0b0a; color: var(--ink); font: inherit; outline: none;
+    width: 100%; margin-bottom: 16px; padding: 12px 16px; border-radius: 10px;
+    border: 1px solid var(--border); background: #121210; color: var(--ink); font: inherit; outline: none;
   }
+  .card input:focus { border-color: var(--accent); }
   .card button {
-    width: 100%; padding: 12px; border-radius: 12px; border: none; background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer;
+    width: 100%; padding: 12px; border-radius: 10px; border: none;
+    background: var(--accent); color: #fff; font: inherit; font-weight: 700; cursor: pointer;
     box-shadow: 0 4px 15px var(--accent-glow);
   }
 </style>
@@ -206,36 +260,30 @@
 <body>
 <div class="app">
   <header>
-    <div class="brand">
-      <h2>Our Day's</h2>
-      <p>Disposable Camera</p>
-    </div>
-    <div class="date-badge" id="liveDate">11 07 '26</div>
+    <h1>CyberDisposable</h1>
+    <a class="link" href="gallery.html">Galeri →</a>
   </header>
 
-  <div class="camera-box">
+  <div class="camera">
+    <div class="topbar">
+      <div class="rec-indicator"><div class="rec-dot"></div><span>RETRO CAM</span></div>
+      <span class="counter" id="counter">SISA: --/--</span>
+    </div>
     <div class="viewfinder">
       <video id="video" autoplay playsinline muted></video>
       <img id="preview" alt="preview">
       <div class="grain" id="grain"></div>
       <div class="flash" id="flash"></div>
-
-      <div class="lens-switcher" id="filters"></div>
     </div>
+    
+    <!-- Filter Pilihan Estetik -->
+    <div class="filters" id="filters"></div>
 
-    <div class="control-panel" id="controls">
-      <button class="btn-icon" id="flashBtn" title="Senter / Flash">⚡</button>
-      
-      <div class="counter-badge" title="Sisa Jepretan">
-        <span class="counter-num" id="counterNum">--</span>
-        <span class="counter-lbl">Sisa</span>
-      </div>
-
-      <button class="shutter-main" id="shutter" title="Jepret Foto"></button>
-
-      <button class="btn-icon" id="flipBtn" title="Putar Kamera">⟲</button>
-      
-      <a class="btn-icon" href="gallery.html" style="text-decoration:none;" title="Galeri">▦</a>
+    <div class="controls" id="controls">
+      <button class="small" id="flipBtn" title="Putar Kamera">⟲</button>
+      <button class="small" id="flashBtn" title="Lampu Flash Senter">⚡</button>
+      <button class="shutter" id="shutter" title="Jepret Foto"></button>
+      <a class="small" href="gallery.html" style="text-decoration:none; display:flex; align-items:center; justify-content:center;" title="Buka Galeri">▦</a>
     </div>
 
     <div class="actions" id="actions">
@@ -246,18 +294,20 @@
   <div class="status" id="status"></div>
 </div>
 
+<!-- Modal Masuk Nama Tamu -->
 <div class="modal" id="nameModal" style="display:none">
   <div class="card">
-    <h2>Momen Spesial</h2>
-    <p>Silakan masukkan nama kamu sebelum mulai mengabadikan momen 📸</p>
-    <input id="nameInput" placeholder="Nama / Panggilan kamu" maxlength="40">
-    <button id="nameBtn">Mulai Masuk Kamera</button>
+    <h2>Selamat Datang!</h2>
+    <p>Masukkan nama atau panggilan kamu sebelum mulai memotret 📸</p>
+    <input id="nameInput" placeholder="Contoh: Rian & Partner" maxlength="40">
+    <button id="nameBtn">Mulai Kamera</button>
   </div>
 </div>
 
 <canvas id="canvas" style="display:none"></canvas>
 
 <script>
+// Masukkan URL Web App Google Apps Script Anda di sini
 const API_URL = "MASUKKAN_URL_WEB_APP_APPS_SCRIPT_ANDA_DISINI";
 
 const CFG = {
@@ -266,11 +316,13 @@ const CFG = {
   preset: "disposable-camera"
 };
 
+// Variasi Filter Estetik Y2K / Retro
 const FILTERS = {
-  normal:  { label:'1×',   css:'none', grain:0.15 },
-  vintage: { label:'90s',  css:'sepia(0.3) saturate(1.4) contrast(1.1)', grain:0.25 },
-  cyber:   { label:'Warm', css:'contrast(1.2) saturate(1.4) hue-rotate(-10deg)', grain:0.2 },
-  bw:      { label:'Mono', css:'grayscale(1) contrast(1.35)', grain:0.35 }
+  normal:  { label:'Normal',     css:'none', grain:0.15 },
+  vintage: { label:'90s Warm',   css:'sepia(0.3) saturate(1.4) contrast(1.1)', grain:0.25 },
+  cyber:   { label:'Cyber Punk', css:'contrast(1.3) saturate(1.5) hue-rotate(-15deg)', grain:0.3 },
+  bw:      { label:'Retro Mono', css:'grayscale(1) contrast(1.35) brightness(1.05)', grain:0.35 },
+  lofi:    { label:'Toy Lofi',   css:'contrast(1.4) saturate(1.2) brightness(0.95)', grain:0.45 }
 };
 
 const $ = id => document.getElementById(id);
@@ -285,19 +337,19 @@ let guestName = localStorage.getItem('ddc_name');
 
 function updateCounter(){
   const rem = Math.max(0, CFG.max - used);
-  $('counterNum').textContent = rem;
+  $('counter').textContent = 'SISA: ' + rem + '/' + CFG.max;
   $('shutter').disabled = rem <= 0;
 }
 function status(t){ $('status').textContent = t; }
 
+// Render Pilihan Filter
 Object.entries(FILTERS).forEach(([k,f])=>{
   const b = document.createElement('button');
-  b.className = 'lens-btn' + (k === current ? ' active' : '');
-  b.textContent = f.label; 
-  b.dataset.k = k;
+  b.textContent = f.label; b.dataset.k = k;
+  if (k===current) b.className='active';
   b.onclick = ()=>{ 
-    current = k; 
-    document.querySelectorAll('.lens-btn').forEach(x=>x.classList.toggle('active', x.dataset.k === k)); 
+    current=k; 
+    document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x.dataset.k===k)); 
     applyFilter(); 
   };
   $('filters').appendChild(b);
@@ -308,11 +360,14 @@ function applyFilter(){
   $('grain').style.opacity = FILTERS[current].grain;
 }
 
+// Inisialisasi Kamera & Senter (Torch)
 async function startCamera(){
-  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
   try {
     stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: { ideal: facing } }, 
+      video: { facingMode: facing }, 
       audio: false 
     });
     const videoElement = $('video');
@@ -321,11 +376,12 @@ async function startCamera(){
     videoElement.style.transform = facing === 'user' ? 'scaleX(-1)' : 'none';
     status('');
   } catch(e) {
-    status('Gagal membuka kamera. Izinkan akses kamera di browser.');
+    status('Gagal membuka kamera. Periksa izin kamera browser.');
     console.error("Camera error:", e);
   }
 }
 
+// Tombol Putar Kamera Depan/Belakang
 $('flipBtn').onclick = ()=>{ 
   facing = facing === 'user' ? 'environment' : 'user'; 
   torchOn = false;
@@ -333,23 +389,28 @@ $('flipBtn').onclick = ()=>{
   startCamera(); 
 };
 
+// Tombol Kontrol Flash Fisik (Senter Malam Hari)
 $('flashBtn').onclick = async () => {
   if (!stream) return;
   const track = stream.getVideoTracks()[0];
   const capabilities = track.getCapabilities ? track.getCapabilities() : {};
+  
   if (!capabilities.torch) {
-    alert('Perangkat ini tidak mendukung lampu flash fisik.');
+    alert('Maaf, perangkat atau kamera ini tidak mendukung fitur lampu flash fisik.');
     return;
   }
+
   try {
     torchOn = !torchOn;
     await track.applyConstraints({ advanced: [{ torch: torchOn }] });
     $('flashBtn').classList.toggle('active-flash', torchOn);
   } catch (err) {
-    status('Gagal menyalakan flash.');
+    console.error('Gagal mengaktifkan flash:', err);
+    status('Flash gagal dinyalakan di perangkat ini.');
   }
 };
 
+// Efek Suara Kamera Shutter (Audio Sintetis via Web Audio API)
 function playShutterSound() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -365,6 +426,7 @@ function playShutterSound() {
   } catch(e) {}
 }
 
+// Tombol Jepret (Shutter)
 $('shutter').onclick = ()=>{
   if (used >= CFG.max) return;
   const v = $('video'); 
@@ -386,6 +448,20 @@ $('shutter').onclick = ()=>{
   ctx.restore(); 
   ctx.filter = 'none';
   
+  // Watermark Tanggal Khas Kamera Retro
+  addDateStamp(ctx, c.width, c.height);
+  
+  c.toBlob(b=>{ 
+    blob = b; 
+    $('preview').src = URL.createObjectURL(b); 
+    $('preview').style.display = 'block';
+    $('controls').style.display = 'none'; 
+    $('actions').style.display = 'flex'; 
+    $('filters').style.visibility = 'hidden'; 
+  }, 'image/jpeg', 0.92);
+};
+
+function addDateStamp(ctx,w,h){
   const d = new Date();
   const t = "'" + String(d.getFullYear()).slice(2) + ' ' + (d.getMonth()+1) + ' ' + d.getDate();
   ctx.font = 'bold 42px "Space Mono", monospace'; 
@@ -394,31 +470,23 @@ $('shutter').onclick = ()=>{
   ctx.shadowBlur = 4;
   ctx.textAlign = 'right'; 
   ctx.fillText(t, w-40, h-40);
-  
-  c.toBlob(b=>{ 
-    blob = b; 
-    $('preview').src = URL.createObjectURL(b); 
-    $('preview').style.display = 'block';
-    $('controls').style.display = 'none'; 
-    $('actions').style.display = 'flex'; 
-    $('filters').style.display = 'none'; 
-  }, 'image/jpeg', 0.92);
-};
+}
 
 function resetView(){
   blob = null; 
   $('preview').style.display = 'none';
   $('controls').style.display = 'flex'; 
   $('actions').style.display = 'none'; 
-  $('filters').style.display = 'flex';
+  $('filters').style.visibility = 'visible';
 }
 $('retake').onclick = resetView;
 
+// Tombol Simpan & Upload ke Cloudinary + GAS
 $('save').onclick = async ()=>{
   if (!blob || busy) return; 
   busy = true; 
   $('save').disabled = true; 
-  status('Mengunggah foto...');
+  status('Mengunggah ke rol film...');
   
   try {
     const fd = new FormData();
@@ -453,7 +521,7 @@ $('save').onclick = async ()=>{
     localStorage.setItem('ddc_used', used); 
     updateCounter(); 
     resetView();
-    status('Tersimpan ke galeri! ✓');
+    status('Berhasil disimpan ke galeri! ✓');
   } catch(e){ 
     busy = false; 
     $('save').disabled = false; 
@@ -468,8 +536,6 @@ applyFilter();
 if (!guestName){ 
   $('nameModal').style.display = 'flex'; 
 }
-
-// PERBAIKAN: Penulisan syntax event listener sudah diperbaiki dengan benar
 $('nameBtn').onclick = ()=>{ 
   guestName = $('nameInput').value.trim() || 'Tamu Kehormatan'; 
   localStorage.setItem('ddc_name', guestName); 
