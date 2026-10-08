@@ -1,56 +1,266 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kelulusan SMP GKST Beteleme 2025/2026</title>
-    <link rel="stylesheet" href="style.css">
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Fraunces:ital,wght@1,600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0e0d0c;--body:#1b1917;--panel:#26231f;--ink:#f3ead8;--muted:#9a9082;--accent:#ff6b2c}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%;background:var(--bg);color:var(--ink);font-family:'Space Mono',monospace}
+  .app{max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;padding:16px;gap:14px}
+  header{display:flex;justify-content:space-between;align-items:center}
+  h1{font-family:'Fraunces',serif;font-style:italic;font-size:22px}
+  .link{color:var(--accent);text-decoration:none;font-size:12px;border:1px solid var(--accent);padding:6px 10px;border-radius:999px}
+  .camera{background:linear-gradient(160deg,#2b2824,#151311);border-radius:28px;padding:14px;box-shadow:0 20px 50px #000a}
+  .topbar{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:10px;padding:0 4px}
+  .counter{background:#000;color:var(--accent);padding:4px 10px;border-radius:6px;font-weight:700}
+  .viewfinder{position:relative;aspect-ratio:3/4;border-radius:18px;overflow:hidden;background:#000;border:3px solid #000}
+  video,#preview{width:100%;height:100%;object-fit:cover;display:block}
+  #preview{position:absolute;inset:0;display:none}
+  .grain{position:absolute;inset:0;pointer-events:none;opacity:0;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence baseFrequency='.9' numOctaves='2'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.6'/></svg>")}
+  .flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .4s}
+  .flash.on{opacity:1;transition:none}
+  .filters{display:flex;gap:8px;overflow-x:auto;padding:12px 2px 2px;scrollbar-width:none}
+  .filters button{flex:0 0 auto;background:var(--panel);color:var(--ink);border:1px solid #3a352f;border-radius:999px;padding:8px 14px;font:inherit;font-size:12px}
+  .filters button.active{background:var(--accent);border-color:var(--accent);color:#1b1917;font-weight:700}
+  .controls{display:flex;justify-content:space-around;align-items:center;padding:18px 0 6px}
+  .small{width:52px;height:52px;border-radius:50%;background:var(--panel);border:1px solid #3a352f;color:var(--ink);font-size:20px}
+  .shutter{width:86px;height:86px;border-radius:50%;border:5px solid #e8dcc4;background:radial-gradient(circle at 35% 30%,#ff8a55,var(--accent) 60%,#c3471a);box-shadow:0 6px 0 #7a2c0f}
+  .shutter:active{transform:translateY(4px);box-shadow:0 2px 0 #7a2c0f}
+  .actions{display:none;gap:10px}
+  .actions button{flex:1;padding:14px;border-radius:14px;border:none;font:inherit;font-weight:700}
+  .retake{background:var(--panel);color:var(--ink)}
+  .save{background:var(--accent);color:#1b1917}
+  .status{text-align:center;font-size:12px;color:var(--muted);min-height:18px}
+  .modal{position:fixed;inset:0;background:#000c;display:flex;align-items:center;justify-content:center;padding:24px;z-index:9}
+  .card{background:var(--body);padding:24px;border-radius:20px;width:100%;max-width:360px;text-align:center}
+  .card input{width:100%;margin:16px 0;padding:12px;border-radius:10px;border:1px solid #3a352f;background:#000;color:var(--ink);font:inherit}
+  .card button{width:100%;padding:12px;border-radius:10px;border:none;background:var(--accent);font:inherit;font-weight:700}
+</style>
 </head>
 <body>
+<div class="app">
+  <header>
+    <h1>Our Wedding Day</h1>
+    <a class="link" href="gallery.html">Galeri →</a>
+  </header>
 
-    <div class="container">
-        <div class="religious-icons">
-            <svg class="icon-cross" viewBox="0 0 24 24">
-                <path d="M11 2h2v7h5v2h-5v11h-2v-11h-5v-2h5z"/>
-            </svg>
-            <svg class="icon-dove" viewBox="0 0 24 24">
-                <path d="M21 8c-1-.5-2.5-.5-3.5.5-1 1-1.5 2.5-1 4.5-.5-.5-1.5-1-2.5-1-2 0-3.5 1.5-3.5 3.5 0 1 .5 2 1 2.5-2-.5-4-2-5-4.5-.5-1-1.5-1.5-2.5-1.5-1.5 0-3 1.5-3 3 0 3.5 4 7 9.5 7 5 0 9-3 9.5-8.5.5-1 1-2.5 1-4-.5-.5-1-.5-1.5-.5z"/>
-            </svg>
-        </div>
-
-        <header>
-            <h1>Pengumuman Kelulusan Siswa<br>SMP GKST Beteleme<br>Tahun Ajaran 2025/2026</h1>
-        </header>
-
-        <main>
-            <section class="sambutan">
-                <h3>Sambutan Kepala Sekolah</h3>
-                <p>Salam sejahtera dalam kasih Tuhan kita Yesus Kristus,</p>
-                <p>Puji dan syukur kita panjatkan ke hadirat Tuhan Yang Maha Kuasa atas segala berkat dan tuntunan-Nya sehingga seluruh proses pembelajaran tahun ajaran 2025/2026 dapat terselesaikan dengan baik. Hari ini adalah momentum bersejarah bagi anak-anakku sekalian, hasil dari perjuangan, ketekunan, dan doa yang telah kalian tanam selama tiga tahun di SMP GKST Beteleme.</p>
-                <p>Kelulusan ini bukanlah akhir, melainkan gerbang awal menuju masa depan yang lebih tinggi. Tetaplah jaga iman, integritas, dan nama baik almamater di mana pun kalian melanjutkan pendidikan. Bagi yang telah berhasil, bersyukurlah dengan bersahaja. Bagi yang masih tertunda, tetap semangat karena rencana Tuhan selalu indah pada waktu-Nya.</p>
-                <p>Tuhan Yesus Memberkati kita semua.</p>
-            </section>
-
-            <section class="countdown-section">
-                <h3>Menuju Waktu Pengumuman:</h3>
-                <div id="countdown">
-                    <div><span id="days">00</span>Hari</div>
-                    <div><span id="hours">00</span>Jam</div>
-                    <div><span id="minutes">00</span>Menit</div>
-                    <div><span id="seconds">00</span>Detik</div>
-                </div>
-            </section>
-
-            <div class="menu-action">
-                <a href="cek.html" class="btn-primary">Menu Cek Kelulusan</a>
-            </div>
-        </main>
+  <div class="camera">
+    <div class="topbar"><span>● REC 35mm</span><span class="counter" id="counter">--/--</span></div>
+    <div class="viewfinder">
+      <video id="video" autoplay playsinline muted></video>
+      <img id="preview" alt="preview">
+      <div class="grain" id="grain"></div>
+      <div class="flash" id="flash"></div>
     </div>
+    <div class="filters" id="filters"></div>
+    <div class="controls" id="controls">
+      <button class="small" id="flipBtn">⟲</button>
+      <button class="shutter" id="shutter"></button>
+      <a class="small" href="gallery.html" style="display:flex;align-items:center;justify-content:center;text-decoration:none">▦</a>
+    </div>
+    <div class="actions" id="actions">
+      <button class="retake" id="retake">Ulangi</button>
+      <button class="save" id="save">Simpan & Upload</button>
+    </div>
+  </div>
+  <div class="status" id="status"></div>
+</div>
 
-    <script src="script.js"></script>
-    <script>
-        // Jalankan countdown saat halaman index dimuat
-        initCountdown();
-    </script>
+<div class="modal" id="nameModal" style="display:none">
+  <div class="card">
+    <h2 style="font-family:Fraunces,serif;font-style:italic">Halo, tamu!</h2>
+    <p style="font-size:12px;color:var(--muted);margin-top:8px">Silakan masukkan nama Anda 📸</p>
+    <input id="nameInput" placeholder="Nama kamu" maxlength="40">
+    <button id="nameBtn">Mulai Memotret</button>
+  </div>
+</div>
+
+<canvas id="canvas" style="display:none"></canvas>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbxKnYCnCti182YUxdgamGC__6xbqbe0ngxT9c-XIlNn1NbDp7m1jhGBwhMXW4TP0Co/exec";
+
+const CFG = {
+  max: 15,
+  cloud: "rfth8pyv",
+  preset: "disposable-camera"
+};
+
+const FILTERS = {
+  normal:  { label:'Normal',     css:'none', grain:0 },
+  bw:      { label:'B&W',        css:'grayscale(1) contrast(1.2)', grain:.25 },
+  vintage: { label:'Vintage Warm', css:'sepia(.35) saturate(1.4) contrast(1.05)', grain:.2 },
+  sepia:   { label:'Sepia',      css:'sepia(.9) contrast(1.1)', grain:.15 },
+  grainy:  { label:'Grainy Film', css:'contrast(1.25) saturate(1.3)', grain:.55 }
+};
+
+const $ = id => document.getElementById(id);
+let current = 'normal', facing = 'environment', stream = null, blob = null, used = 0, busy = false;
+
+let guestId = localStorage.getItem('ddc_gid');
+if (!guestId) { guestId = 'g_' + Date.now().toString(36) + Math.random().toString(36).slice(2,8); localStorage.setItem('ddc_gid', guestId); }
+let guestName = localStorage.getItem('ddc_name');
+
+function updateCounter(){
+  const rem = Math.max(0, CFG.max - used);
+  $('counter').textContent = 'Sisa: ' + rem + '/' + CFG.max;
+  $('shutter').disabled = rem <= 0;
+}
+function status(t){ $('status').textContent = t; }
+
+Object.entries(FILTERS).forEach(([k,f])=>{
+  const b = document.createElement('button');
+  b.textContent = f.label; b.dataset.k = k;
+  if (k===current) b.className='active';
+  b.onclick = ()=>{ current=k; document.querySelectorAll('.filters button').forEach(x=>x.classList.toggle('active',x.dataset.k===k)); applyFilter(); };
+  $('filters').appendChild(b);
+});
+function applyFilter(){
+  $('video').style.filter = FILTERS[current].css;
+  $('grain').style.opacity = FILTERS[current].grain;
+}
+
+async function startCamera(){
+  if (stream) {
+    stream.getTracks().forEach(t => t.stop());
+  }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: facing }, 
+      audio: false 
+    });
+    const videoElement = $('video');
+    videoElement.srcObject = stream;
+    await videoElement.play();
+    videoElement.style.transform = facing === 'user' ? 'scaleX(-1)' : 'none';
+    status('');
+  } catch(e) {
+    status('Gagal membuka kamera. Periksa izin kamera browser.');
+    console.error("Camera error:", e);
+  }
+}
+
+$('flipBtn').onclick = ()=>{ 
+  facing = facing === 'user' ? 'environment' : 'user'; 
+  startCamera(); 
+};
+
+$('shutter').onclick = ()=>{
+  if (used >= CFG.max) return;
+  const v = $('video'); 
+  if (!v.videoWidth) return;
+  
+  $('flash').classList.add('on'); 
+  setTimeout(()=>$('flash').classList.remove('on'), 60);
+  
+  const c = $('canvas'), ctx = c.getContext('2d');
+  const w = v.videoWidth, h = v.videoHeight;
+  const sz = Math.min(w, h);
+  c.width = 1000; c.height = 1000;
+  
+  ctx.save();
+  if (facing === 'user'){ ctx.translate(c.width, 0); ctx.scale(-1, 1); }
+  ctx.filter = FILTERS[current].css;
+  ctx.drawImage(v, (w-sz)/2, (h-sz)/2, sz, sz, 0, 0, c.width, c.height);
+  ctx.restore(); 
+  ctx.filter = 'none';
+  
+  addDateStamp(ctx, c.width, c.height);
+  
+  c.toBlob(b=>{ 
+    blob = b; 
+    $('preview').src = URL.createObjectURL(b); 
+    $('preview').style.display = 'block';
+    $('controls').style.display = 'none'; 
+    $('actions').style.display = 'flex'; 
+    $('filters').style.visibility = 'hidden'; 
+  }, 'image/jpeg', 0.9);
+};
+
+function addDateStamp(ctx,w,h){
+  const d = new Date(), t = "'" + String(d.getFullYear()).slice(2) + ' ' + (d.getMonth()+1) + ' ' + d.getDate();
+  ctx.font = 'bold 38px "Space Mono", monospace'; 
+  ctx.fillStyle = '#ff8a3d';
+  ctx.textAlign = 'right'; 
+  ctx.fillText(t, w-40, h-40);
+}
+
+function resetView(){
+  blob = null; 
+  $('preview').style.display = 'none';
+  $('controls').style.display = 'flex'; 
+  $('actions').style.display = 'none'; 
+  $('filters').style.visibility = 'visible';
+}
+$('retake').onclick = resetView;
+
+$('save').onclick = async ()=>{
+  if (!blob || busy) return; 
+  busy = true; 
+  $('save').disabled = true; 
+  status('Mengupload foto...');
+  
+  try {
+    const fd = new FormData();
+    fd.append('file', blob); 
+    fd.append('upload_preset', CFG.preset);
+    fd.append('folder', 'disposable-camera'); 
+    fd.append('tags', guestId);
+    
+    const r = await fetch('https://api.cloudinary.com/v1_1/' + CFG.cloud + '/image/upload', { 
+      method: 'POST', 
+      body: fd 
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error ? j.error.message : 'Upload Cloudinary gagal');
+    
+    const queryParams = new URLSearchParams({
+      action: 'save',
+      guestId: guestId,
+      guestName: guestName,
+      filter: current,
+      imageUrl: j.secure_url,
+      publicId: j.public_id,
+      width: j.width,
+      height: j.height
+    });
+
+    await fetch(API_URL + '?' + queryParams.toString(), { method: 'GET', mode: 'no-cors' });
+    
+    busy = false; 
+    $('save').disabled = false;
+    used++; 
+    localStorage.setItem('ddc_used', used); 
+    updateCounter(); 
+    resetView();
+    status('Tersimpan! ✓');
+  } catch(e){ 
+    busy = false; 
+    $('save').disabled = false; 
+    status('Error: ' + e.message); 
+  }
+};
+
+used = Number(localStorage.getItem('ddc_used') || 0); 
+updateCounter(); 
+applyFilter();
+
+if (!guestName){ 
+  $('nameModal').style.display = 'flex'; 
+}
+$('nameBtn').onclick = ()=>{ 
+  guestName = $('nameInput').value.trim() || 'Tamu'; 
+  localStorage.setItem('ddc_name', guestName); 
+  $('nameModal').style.display = 'none'; 
+  startCamera();
+};
+
+if (guestName) {
+  startCamera();
+}
+</script>
 </body>
 </html>
