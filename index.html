@@ -10,36 +10,19 @@
   body { font-family: 'Inter', sans-serif; }
   .serif { font-family: 'Playfair Display', serif; }
   .frame-card.selected { outline: 3px solid #b8935a; outline-offset: 2px; }
-  #video.mirror { transform: scaleX(-1); }
+  #video { transform: scale(var(--z, 1)); transform-origin: center; }
+  #video.mirror { transform: scaleX(-1) scale(var(--z, 1)); }
+  .chip { flex: none; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600;
+          background: #e7e5e4; color: #44403c; }
+  .chip.active { background: #b45309; color: #fff; }
+  .zbtn { width: 44px; height: 44px; border-radius: 999px; font-size: 13px; font-weight: 700;
+          background: rgba(0,0,0,.55); color: #fff; }
+  .zbtn.active { background: #fbbf24; color: #1c1917; }
+  .noscroll::-webkit-scrollbar { display: none; }
 </style>
 </head>
 <body class="bg-stone-50 text-stone-800 min-h-screen">
 
-<!-- ====================== KONFIGURASI (WAJIB DIISI) ====================== -->
-<script>
-const CONFIG = {
-  eventTitle:  'The Our Momment',
-  eventDate:   '23 . 12 . 2026',
-  cloudName:   'rfth8pyv',
-  uploadPreset:'photobooth_unsigned',
-  gasUrl:      'https://script.google.com/macros/s/AKfycbw8cTul4WAhck9B0hZou6GD4eLIdm6Rs-LmOIZzCl6vC8RWDDRwak05KyyqQojtw9zhPg/exec',
-  maxShots: 15,   // batas jepretan per tamu (per perangkat)
-  canvasW: 1080,
-  canvasH: 1920
-};
-
-/* Daftar frame. Dua jenis:
-   - { src: 'frames/nama.png' }  -> PNG transparan 1080x1920 buatan Anda
-   - { draw: function(ctx,w,h) } -> frame digambar otomatis (bawaan)        */
-const FRAMES = [
-  { id: 'gold', name: 'Elegant Gold', draw: function (c, w, h) { drawGold(c, w, h); } },
-  { id: 'blush', name: 'Blush Floral', draw: function (c, w, h) { drawBlush(c, w, h); } },
-  { id: 'noir', name: 'Classic Noir', draw: function (c, w, h) { drawNoir(c, w, h); } }
-  // Contoh frame PNG sendiri: { id:'custom1', name:'Frame Saya', src:'frames/frame1.png' }
-];
-</script>
-
-<!-- ====================== HEADER ====================== -->
 <header class="bg-white border-b border-stone-200 sticky top-0 z-30">
   <div class="max-w-md mx-auto px-4 pt-4 pb-2 text-center">
     <h1 id="title" class="serif text-2xl font-bold text-stone-800"></h1>
@@ -53,10 +36,9 @@ const FRAMES = [
 
 <main class="max-w-md mx-auto px-4 py-5">
 
-  <!-- ============ HALAMAN FOTO ============ -->
   <section id="pagePhoto">
 
-    <!-- Step 1: Pilih frame -->
+    <!-- Step 1 -->
     <div id="step1">
       <h2 class="font-semibold mb-1">1. Pilih Bingkai</h2>
       <p class="text-sm text-stone-500 mb-3">Ketuk salah satu bingkai, lalu mulai kamera.</p>
@@ -67,27 +49,32 @@ const FRAMES = [
       <p id="shotInfo1" class="text-xs text-stone-500 text-center mt-2"></p>
     </div>
 
-    <!-- Step 2: Kamera -->
+    <!-- Step 2 -->
     <div id="step2" class="hidden">
       <h2 class="font-semibold mb-3">2. Jepret Foto</h2>
-      <div class="relative w-full mx-auto bg-black rounded-2xl overflow-hidden shadow-lg" style="aspect-ratio:9/16;">
+      <div class="relative w-full mx-auto bg-black rounded-2xl overflow-hidden shadow-lg" style="aspect-ratio:1/1;">
         <video id="video" class="absolute inset-0 w-full h-full object-cover" autoplay playsinline muted></video>
         <img id="liveFrame" class="absolute inset-0 w-full h-full pointer-events-none" alt="" />
+        <div id="zoomBar" class="absolute bottom-3 left-0 right-0 flex justify-center gap-3"></div>
         <div id="countdown" class="absolute inset-0 hidden items-center justify-center text-white text-8xl font-bold" style="text-shadow:0 2px 20px rgba(0,0,0,.6)"></div>
       </div>
-      <div class="flex gap-3 mt-4">
-        <button id="btnBack1" class="flex-1 bg-stone-200 py-3 rounded-xl font-semibold">Kembali</button>
-        <button id="btnFlip" class="flex-1 bg-stone-800 text-white py-3 rounded-xl font-semibold active:scale-95 transition">Putar Kamera</button>
-        <button id="btnSnap" class="flex-[2] bg-amber-700 text-white py-3 rounded-xl font-semibold shadow active:scale-95 transition">Jepret (3 dtk)</button>
+
+      <p class="text-xs font-semibold text-stone-500 mt-3 mb-1">Filter</p>
+      <div id="filterBar" class="flex gap-2 overflow-x-auto noscroll pb-1"></div>
+
+      <div class="flex gap-2 mt-4">
+        <button id="btnBack1" class="flex-1 bg-stone-200 py-3 rounded-xl font-semibold text-sm">Kembali</button>
+        <button id="btnFlip" class="flex-1 bg-stone-800 text-white py-3 rounded-xl font-semibold text-sm active:scale-95 transition">Putar Kamera</button>
+        <button id="btnSnap" class="flex-[1.5] bg-amber-700 text-white py-3 rounded-xl font-semibold text-sm shadow active:scale-95 transition disabled:opacity-40">Jepret (3 dtk)</button>
       </div>
       <p id="shotInfo" class="text-xs text-stone-500 text-center mt-3"></p>
       <p id="camError" class="text-sm text-red-600 mt-3 hidden"></p>
     </div>
 
-    <!-- Step 3: Preview + form -->
+    <!-- Step 3 -->
     <div id="step3" class="hidden">
       <h2 class="font-semibold mb-3">3. Hasil & Pesan Ucapan</h2>
-      <img id="preview" class="w-full rounded-2xl shadow-lg bg-stone-200" style="aspect-ratio:9/16;" alt="Hasil foto" />
+      <img id="preview" class="w-full rounded-2xl shadow-lg bg-stone-200" style="aspect-ratio:1/1;" alt="Hasil foto" />
       <div class="mt-4 space-y-3">
         <input id="inpNama" maxlength="100" placeholder="Nama Anda" class="w-full border border-stone-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-600" />
         <textarea id="inpUcapan" rows="3" maxlength="500" placeholder="Pesan & ucapan untuk mempelai" class="w-full border border-stone-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-600"></textarea>
@@ -99,11 +86,11 @@ const FRAMES = [
       <p id="uploadMsg" class="text-sm mt-3 text-center"></p>
     </div>
 
-    <!-- Step 4: Selesai -->
+    <!-- Step 4 -->
     <div id="step4" class="hidden text-center">
       <h2 class="serif text-2xl font-bold mb-2">Terima kasih!</h2>
       <p class="text-stone-500 text-sm mb-4">Foto Anda sudah tersimpan dan tampil di galeri.</p>
-      <img id="donePreview" class="w-2/3 mx-auto rounded-2xl shadow-lg" alt="" />
+      <img id="donePreview" class="w-4/5 mx-auto rounded-2xl shadow-lg" alt="" />
       <div class="flex gap-3 mt-5">
         <button id="btnDownload" class="flex-1 bg-amber-700 text-white py-3 rounded-xl font-semibold">Unduh Foto</button>
         <button id="btnAgain" class="flex-1 bg-stone-200 py-3 rounded-xl font-semibold">Foto Lagi</button>
@@ -112,7 +99,6 @@ const FRAMES = [
     </div>
   </section>
 
-  <!-- ============ HALAMAN GALERI ============ -->
   <section id="pageGallery" class="hidden">
     <div class="flex items-center justify-between mb-3">
       <h2 class="font-semibold">Galeri Tamu</h2>
@@ -123,7 +109,6 @@ const FRAMES = [
   </section>
 </main>
 
-<!-- Modal galeri -->
 <div id="modal" class="fixed inset-0 bg-black/80 z-50 hidden items-center justify-center p-4">
   <div class="bg-white rounded-2xl max-w-sm w-full max-h-[92vh] overflow-auto">
     <img id="modalImg" class="w-full rounded-t-2xl" alt="" />
@@ -141,53 +126,123 @@ const FRAMES = [
 <canvas id="work" class="hidden"></canvas>
 
 <script>
-/* ====================== FRAME GENERATOR (bawaan) ====================== */
+/* ====================== KONFIGURASI ====================== */
+const CONFIG = {
+  eventTitle:  'The Our Momment',
+  eventDate:   '23 . 12 . 2026',
+  cloudName:   'rfth8pyv',
+  uploadPreset:'photobooth_unsigned',
+  gasUrl:      'https://script.google.com/macros/s/AKfycbw8cTul4WAhck9B0hZou6GD4eLIdm6Rs-LmOIZzCl6vC8RWDDRwak05KyyqQojtw9zhPg/exec',
+  maxShots: 15,     // batas jepretan per tamu (per perangkat)
+  canvasW: 1000,    // ukuran hasil foto
+  canvasH: 1000,
+  jpegQuality: 0.88
+};
+
+/* ====================== FRAME BAWAAN (digambar otomatis) ====================== */
 function drawGold(ctx, w, h) {
-  ctx.lineWidth = 36; ctx.strokeStyle = '#b8935a';
-  ctx.strokeRect(18, 18, w - 36, h - 36);
-  ctx.lineWidth = 6; ctx.strokeStyle = '#e6d3a3';
-  ctx.strokeRect(60, 60, w - 120, h - 120);
+  ctx.lineWidth = 30; ctx.strokeStyle = '#b8935a';
+  ctx.strokeRect(15, 15, w - 30, h - 30);
+  ctx.lineWidth = 5; ctx.strokeStyle = '#e6d3a3';
+  ctx.strokeRect(50, 50, w - 100, h - 100);
   ctx.textAlign = 'center';
-  ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 12;
-  ctx.font = '700 64px "Playfair Display", serif';
-  ctx.fillText(CONFIG.eventTitle, w / 2, h - 170);
-  ctx.font = '500 38px Inter, sans-serif';
-  ctx.fillText(CONFIG.eventDate, w / 2, h - 110);
+  ctx.fillStyle = '#fff'; ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 12;
+  ctx.font = '700 54px "Playfair Display", serif';
+  ctx.fillText(CONFIG.eventTitle, w / 2, h - 105);
+  ctx.font = '500 32px Inter, sans-serif';
+  ctx.fillText(CONFIG.eventDate, w / 2, h - 62);
   ctx.shadowBlur = 0;
 }
 function drawBlush(ctx, w, h) {
   ctx.fillStyle = '#f9d5dc';
-  ctx.fillRect(0, 0, w, 70); ctx.fillRect(0, h - 70, w, 70);
-  ctx.fillRect(0, 0, 70, h); ctx.fillRect(w - 70, 0, 70, h);
-  const dots = [[40,40],[w-40,40],[40,h-40],[w-40,h-40],[w/2,35],[w/2,h-35],[35,h/2],[w-35,h/2]];
+  ctx.fillRect(0, 0, w, 60); ctx.fillRect(0, h - 60, w, 60);
+  ctx.fillRect(0, 0, 60, h); ctx.fillRect(w - 60, 0, 60, h);
+  const dots = [[34,34],[w-34,34],[34,h-34],[w-34,h-34],[w/2,30],[w/2,h-30],[30,h/2],[w-30,h/2]];
   dots.forEach(function (p) {
     for (let i = 0; i < 6; i++) {
       const a = i * Math.PI / 3;
       ctx.beginPath(); ctx.fillStyle = '#e88fa3';
-      ctx.arc(p[0] + Math.cos(a) * 26, p[1] + Math.sin(a) * 26, 22, 0, 7); ctx.fill();
+      ctx.arc(p[0] + Math.cos(a) * 22, p[1] + Math.sin(a) * 22, 18, 0, 7); ctx.fill();
     }
-    ctx.beginPath(); ctx.fillStyle = '#f6c453'; ctx.arc(p[0], p[1], 16, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.fillStyle = '#f6c453'; ctx.arc(p[0], p[1], 14, 0, 7); ctx.fill();
   });
   ctx.textAlign = 'center'; ctx.fillStyle = '#fff';
-  ctx.shadowColor = 'rgba(0,0,0,.45)'; ctx.shadowBlur = 12;
-  ctx.font = '700 62px "Playfair Display", serif';
-  ctx.fillText(CONFIG.eventTitle, w / 2, h - 150);
-  ctx.font = '500 36px Inter, sans-serif';
-  ctx.fillText(CONFIG.eventDate, w / 2, h - 100);
+  ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 12;
+  ctx.font = '700 52px "Playfair Display", serif';
+  ctx.fillText(CONFIG.eventTitle, w / 2, h - 125);
+  ctx.font = '500 30px Inter, sans-serif';
+  ctx.fillText(CONFIG.eventDate, w / 2, h - 84);
   ctx.shadowBlur = 0;
 }
 function drawNoir(ctx, w, h) {
   ctx.fillStyle = '#111';
-  ctx.fillRect(0, h - 300, w, 300);
-  ctx.fillRect(0, 0, w, 40); ctx.fillRect(0, 0, 40, h); ctx.fillRect(w - 40, 0, 40, h);
+  ctx.fillRect(0, h - 190, w, 190);
+  ctx.fillRect(0, 0, w, 34); ctx.fillRect(0, 0, 34, h); ctx.fillRect(w - 34, 0, 34, h);
   ctx.textAlign = 'center'; ctx.fillStyle = '#f5f0e6';
-  ctx.font = '700 66px "Playfair Display", serif';
-  ctx.fillText(CONFIG.eventTitle, w / 2, h - 160);
-  ctx.fillStyle = '#c9a766'; ctx.font = '500 38px Inter, sans-serif';
-  ctx.fillText(CONFIG.eventDate, w / 2, h - 95);
+  ctx.font = '700 54px "Playfair Display", serif';
+  ctx.fillText(CONFIG.eventTitle, w / 2, h - 105);
+  ctx.fillStyle = '#c9a766'; ctx.font = '500 32px Inter, sans-serif';
+  ctx.fillText(CONFIG.eventDate, w / 2, h - 55);
 }
 
-/* ====================== PROMPT 2: KOMPOSIT CANVAS ====================== */
+/* Frame sendiri: PNG transparan 1000 x 1000 px, tambahkan seperti:
+   { id:'custom1', name:'Frame Saya', src:'frames/frame1.png' }            */
+const FRAMES = [
+  { id: 'gold',  name: 'Elegant Gold', draw: drawGold },
+  { id: 'blush', name: 'Blush Floral', draw: drawBlush },
+  { id: 'noir',  name: 'Classic Noir', draw: drawNoir }
+];
+
+/* ====================== FILTER ====================== */
+// Urutan efek: gray -> sepia -> sat -> contrast -> bright (sama dengan CSS filter)
+const FILTERS = [
+  { id: 'normal',  name: 'Normal',  o: {} },
+  { id: 'bw',      name: 'Hitam Putih', o: { gray: 1, contrast: 1.1 } },
+  { id: 'sepia',   name: 'Sepia',   o: { sepia: 0.85 } },
+  { id: 'warm',    name: 'Hangat',  o: { sepia: 0.25, sat: 1.2, bright: 1.03 } },
+  { id: 'vivid',   name: 'Vivid',   o: { sat: 1.45, contrast: 1.1 } },
+  { id: 'vintage', name: 'Vintage', o: { sepia: 0.4, contrast: 0.9, bright: 1.08, sat: 0.9 } },
+  { id: 'soft',    name: 'Lembut',  o: { bright: 1.08, contrast: 0.92, sat: 1.1 } }
+];
+function filterCss(o) {
+  const p = [];
+  if (o.gray)     p.push('grayscale(' + o.gray + ')');
+  if (o.sepia)    p.push('sepia(' + o.sepia + ')');
+  if (o.sat)      p.push('saturate(' + o.sat + ')');
+  if (o.contrast) p.push('contrast(' + o.contrast + ')');
+  if (o.bright)   p.push('brightness(' + o.bright + ')');
+  return p.length ? p.join(' ') : 'none';
+}
+// Diterapkan lewat pixel (jalan di semua HP, termasuk iPhone)
+function applyFilterPixels(ctx, W, H, o) {
+  if (!Object.keys(o).length) return;
+  const img = ctx.getImageData(0, 0, W, H), d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i + 1], b = d[i + 2];
+    if (o.gray) {
+      const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      r += (l - r) * o.gray; g += (l - g) * o.gray; b += (l - b) * o.gray;
+    }
+    if (o.sepia) {
+      const sr = 0.393 * r + 0.769 * g + 0.189 * b;
+      const sg = 0.349 * r + 0.686 * g + 0.168 * b;
+      const sb = 0.272 * r + 0.534 * g + 0.131 * b;
+      r += (sr - r) * o.sepia; g += (sg - g) * o.sepia; b += (sb - b) * o.sepia;
+    }
+    if (o.sat) {
+      const l = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      r = l + (r - l) * o.sat; g = l + (g - l) * o.sat; b = l + (b - l) * o.sat;
+    }
+    if (o.contrast) {
+      r = (r - 128) * o.contrast + 128; g = (g - 128) * o.contrast + 128; b = (b - 128) * o.contrast + 128;
+    }
+    if (o.bright) { r *= o.bright; g *= o.bright; b *= o.bright; }
+    d[i] = r; d[i + 1] = g; d[i + 2] = b;   // Uint8ClampedArray otomatis membatasi 0-255
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+/* ====================== KOMPOSIT CANVAS ====================== */
 const frameCache = {};
 function loadImage(src) {
   return new Promise(function (res, rej) {
@@ -213,32 +268,32 @@ async function getFrameImage(frame) {
   return img;
 }
 
-/** Gambar sumber (video/img) ke canvas dengan skala "cover" */
-function drawCover(ctx, source, sw, sh, W, H, mirror) {
+/** Gambar sumber ke canvas dengan skala "cover" + zoom digital (crop tengah) */
+function drawCover(ctx, source, sw, sh, W, H, mirror, digital) {
   const scale = Math.max(W / sw, H / sh);
-  const dw = sw * scale, dh = sh * scale;
-  const dx = (W - dw) / 2, dy = (H - dh) / 2;
+  const cw = W / scale / digital, ch = H / scale / digital;   // area sumber yang diambil
+  const sx = (sw - cw) / 2, sy = (sh - ch) / 2;
   ctx.save();
   if (mirror) { ctx.translate(W, 0); ctx.scale(-1, 1); }
-  ctx.drawImage(source, dx, dy, dw, dh);
+  ctx.drawImage(source, sx, sy, cw, ch, 0, 0, W, H);
   ctx.restore();
 }
 
-/** Gabungkan foto + frame -> Blob JPEG */
-async function compositePhoto(source, sw, sh, frame, mirror) {
-  const canvas = document.getElementById('work');
+async function compositePhoto(source, sw, sh, frame, mirror, digital, filter) {
+  const canvas = $('work');
   canvas.width = CONFIG.canvasW; canvas.height = CONFIG.canvasH;
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  drawCover(ctx, source, sw, sh, canvas.width, canvas.height, mirror);
+  drawCover(ctx, source, sw, sh, canvas.width, canvas.height, mirror, digital);
+  applyFilterPixels(ctx, canvas.width, canvas.height, filter.o);   // filter hanya pada foto
   const frameImg = await getFrameImage(frame);
-  ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);
+  ctx.drawImage(frameImg, 0, 0, canvas.width, canvas.height);       // bingkai di atas
   return new Promise(function (res, rej) {
-    canvas.toBlob(function (b) { b ? res(b) : rej(new Error('Gagal membuat gambar')); }, 'image/jpeg', 0.92);
+    canvas.toBlob(function (b) { b ? res(b) : rej(new Error('Gagal membuat gambar')); }, 'image/jpeg', CONFIG.jpegQuality);
   });
 }
 
-/* ====================== PROMPT 3: UPLOAD CLOUDINARY ====================== */
+/* ====================== UPLOAD CLOUDINARY ====================== */
 async function uploadToCloudinary(blob) {
   try {
     const fd = new FormData();
@@ -259,7 +314,6 @@ async function uploadToCloudinary(blob) {
 
 /* ====================== API GAS ====================== */
 async function saveToSheet(payload) {
-  // text/plain agar tidak memicu preflight CORS (GAS tidak mendukung OPTIONS)
   const r = await fetch(CONFIG.gasUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
@@ -276,14 +330,18 @@ async function fetchGallery() {
   return data;
 }
 
-/* ====================== UI LOGIC ====================== */
+/* ====================== UI ====================== */
 const $ = function (id) { return document.getElementById(id); };
-let currentFacing = 'user', selectedFrame = null, stream = null, resultBlob = null, resultUrl = null, uploadedUrl = null;
+let currentFacing = 'user', selectedFrame = null, stream = null,
+    resultBlob = null, resultUrl = null, uploadedUrl = null;
+let currentFilter = FILTERS[0];
+// state zoom
+let zoomCaps = null, ultraId = null, useUltra = false, zoomLevel = 1, digitalZoom = 1;
 
 $('title').textContent = CONFIG.eventTitle;
 $('date').textContent = CONFIG.eventDate;
 
-/* Batas jepretan per tamu (disimpan di browser perangkat) */
+/* ---- Batas jepretan ---- */
 const SHOT_KEY = 'photobooth_shots_used';
 function shotsUsed() {
   try { return parseInt(localStorage.getItem(SHOT_KEY) || '0', 10) || 0; } catch (e) { return 0; }
@@ -320,12 +378,12 @@ $('tabPhoto').onclick = function () { showTab('photo'); };
 $('tabGallery').onclick = function () { showTab('gallery'); };
 $('btnToGallery').onclick = function () { showTab('gallery'); };
 
-/* Step 1: daftar frame */
+/* ---- Step 1: daftar frame ---- */
 (async function renderFrames() {
   for (const f of FRAMES) {
     const btn = document.createElement('button');
-    btn.className = 'frame-card rounded-xl overflow-hidden bg-stone-200 relative';
-    btn.style.aspectRatio = '9/16';
+    btn.className = 'frame-card rounded-xl overflow-hidden bg-stone-300 relative';
+    btn.style.aspectRatio = '1/1';
     const img = document.createElement('img');
     img.className = 'absolute inset-0 w-full h-full'; img.alt = f.name;
     try { img.src = (await getFrameImage(f)).src; } catch (e) {}
@@ -343,17 +401,94 @@ $('btnToGallery').onclick = function () { showTab('gallery'); };
   }
 })();
 
-/* Step 2: kamera */
+/* ---- Filter bar ---- */
+function renderFilters() {
+  const bar = $('filterBar'); bar.innerHTML = '';
+  FILTERS.forEach(function (f) {
+    const b = document.createElement('button');
+    b.className = 'chip' + (f.id === currentFilter.id ? ' active' : '');
+    b.textContent = f.name;
+    b.onclick = function () {
+      currentFilter = f;
+      $('video').style.filter = filterCss(f.o);
+      renderFilters();
+    };
+    bar.appendChild(b);
+  });
+}
+renderFilters();
+
+/* ---- Zoom ---- */
+async function findUltraWide() {
+  try {
+    const devs = await navigator.mediaDevices.enumerateDevices();
+    const u = devs.find(function (d) {
+      return d.kind === 'videoinput' && /ultra/i.test(d.label) && /back|rear|environment/i.test(d.label);
+    });
+    if (u) ultraId = u.deviceId;
+  } catch (e) {}
+}
+function renderZoomBar() {
+  const bar = $('zoomBar'); bar.innerHTML = '';
+  const has05 = (zoomCaps && zoomCaps.min <= 0.51) || (ultraId && currentFacing === 'environment');
+  const opts = (has05 ? [0.5] : []).concat([1, 3]);
+  opts.forEach(function (z) {
+    const b = document.createElement('button');
+    b.className = 'zbtn' + (z === zoomLevel ? ' active' : '');
+    b.textContent = (z === 0.5 ? '0.5' : z) + 'x';
+    b.onclick = function () { setZoom(z); };
+    bar.appendChild(b);
+  });
+}
+async function setZoom(z) {
+  const track = stream && stream.getVideoTracks()[0];
+  const nativeOk = zoomCaps && z >= zoomCaps.min - 0.001 && z <= zoomCaps.max + 0.001;
+  zoomLevel = z; digitalZoom = 1;
+
+  if (z < 1) {
+    if (nativeOk) {
+      try { await track.applyConstraints({ advanced: [{ zoom: z }] }); } catch (e) {}
+    } else if (ultraId && !useUltra) {          // pindah ke lensa ultra-wide
+      useUltra = true; await startCamera(); return;
+    }
+  } else {
+    if (useUltra) {                              // kembali ke lensa utama
+      useUltra = false; await startCamera(); return;
+    }
+    if (nativeOk) {
+      try { await track.applyConstraints({ advanced: [{ zoom: z }] }); }
+      catch (e) { digitalZoom = z; }
+    } else {
+      digitalZoom = z;                           // zoom digital (crop tengah)
+      if (zoomCaps) { try { await track.applyConstraints({ advanced: [{ zoom: zoomCaps.min }] }); } catch (e) {} }
+    }
+  }
+  $('video').style.setProperty('--z', digitalZoom);
+  renderZoomBar();
+}
+
+/* ---- Kamera ---- */
 async function startCamera() {
   $('camError').classList.add('hidden');
   try {
     stopCamera();
-    stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: { ideal: currentFacing }, width: { ideal: 1080 }, height: { ideal: 1920 } }, audio: false
-    });
-    $('video').srcObject = stream;
-    // Cermin hanya untuk kamera depan (selfie)
-    $('video').classList.toggle('mirror', currentFacing === 'user');
+    const video = { width: { ideal: 1920 }, height: { ideal: 1440 } };
+    if (useUltra && ultraId) video.deviceId = { exact: ultraId };
+    else video.facingMode = { ideal: currentFacing };
+    stream = await navigator.mediaDevices.getUserMedia({ video: video, audio: false });
+    const v = $('video');
+    v.srcObject = stream;
+    v.classList.toggle('mirror', currentFacing === 'user');
+    v.style.filter = filterCss(currentFilter.o);
+
+    zoomCaps = null;
+    try {
+      const track = stream.getVideoTracks()[0];
+      const caps = track.getCapabilities ? track.getCapabilities() : {};
+      if (caps.zoom) zoomCaps = caps.zoom;
+    } catch (e) {}
+    await findUltraWide();
+    await setZoom(zoomLevel);
   } catch (err) {
     $('camError').textContent = 'Kamera tidak bisa dibuka. Pastikan izin kamera diberikan dan halaman dibuka lewat HTTPS. (' + err.message + ')';
     $('camError').classList.remove('hidden');
@@ -366,11 +501,14 @@ $('btnStartCam').onclick = async function () {
   if (!selectedFrame || shotsLeft() <= 0) return;
   $('liveFrame').src = (await getFrameImage(selectedFrame)).src;
   showStep(2);
+  updateShotInfo();
+  zoomLevel = 1; useUltra = false;
   startCamera();
 };
 $('btnBack1').onclick = function () { stopCamera(); showStep(1); };
 $('btnFlip').onclick = function () {
   currentFacing = currentFacing === 'user' ? 'environment' : 'user';
+  zoomLevel = 1; useUltra = false;
   startCamera();
 };
 
@@ -387,11 +525,13 @@ $('btnSnap').onclick = async function () {
   }
   cd.classList.add('hidden'); cd.classList.remove('flex');
   try {
-    resultBlob = await compositePhoto(video, video.videoWidth, video.videoHeight, selectedFrame, currentFacing === 'user');
+    resultBlob = await compositePhoto(video, video.videoWidth, video.videoHeight,
+      selectedFrame, currentFacing === 'user', digitalZoom, currentFilter);
     useShot();
     if (resultUrl) URL.revokeObjectURL(resultUrl);
     resultUrl = URL.createObjectURL(resultBlob);
     $('preview').src = resultUrl;
+    uploadedUrl = null;
     stopCamera();
     $('uploadMsg').textContent = '';
     $('btnUpload').disabled = false;
@@ -403,7 +543,7 @@ $('btnSnap').onclick = async function () {
   updateShotInfo();
 };
 
-/* Step 3: unggah */
+/* ---- Step 3: unggah ---- */
 $('btnRetake').onclick = function () { showStep(2); startCamera(); };
 $('btnUpload').onclick = async function () {
   const nama = $('inpNama').value.trim();
@@ -428,7 +568,7 @@ $('btnUpload').onclick = async function () {
   }
 };
 
-/* Step 4 */
+/* ---- Step 4 ---- */
 $('btnDownload').onclick = function () {
   const a = document.createElement('a');
   a.href = resultUrl; a.download = 'photobooth-' + Date.now() + '.jpg';
@@ -440,10 +580,8 @@ $('btnAgain').onclick = function () {
   showStep(1);
 };
 
-/* Galeri */
-function downloadUrl(url) {
-  return url.replace('/upload/', '/upload/fl_attachment/');
-}
+/* ---- Galeri ---- */
+function downloadUrl(url) { return url.replace('/upload/', '/upload/fl_attachment/'); }
 async function loadGallery() {
   const grid = $('galleryGrid'), msg = $('galleryMsg');
   grid.innerHTML = ''; msg.textContent = 'Memuat...'; msg.classList.remove('hidden');
@@ -458,7 +596,7 @@ async function loadGallery() {
       const img = document.createElement('img');
       img.src = String(url).replace('/upload/', '/upload/w_500,q_auto/');
       img.loading = 'lazy'; img.alt = 'Foto ' + it.Nama;
-      img.className = 'w-full bg-stone-200'; img.style.aspectRatio = '9/16';
+      img.className = 'w-full bg-stone-200'; img.style.aspectRatio = '1/1';
       const cap = document.createElement('div');
       cap.className = 'px-2 py-1.5 text-xs font-semibold truncate';
       cap.textContent = it.Nama;
