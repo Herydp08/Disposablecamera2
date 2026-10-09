@@ -18,11 +18,11 @@
 <!-- ====================== KONFIGURASI (WAJIB DIISI) ====================== -->
 <script>
 const CONFIG = {
-  eventTitle:  'The Our Momment',
-  eventDate:   '23 . 12 . 2026',
-  cloudName:   'rfth8pyv',        // dari dashboard Cloudinary
-  uploadPreset:'photobooth_unsigned',   // nama upload preset (mode Unsigned)
-  gasUrl:      'https://script.google.com/macros/s/AKfycbw8cTul4WAhck9B0hZou6GD4eLIdm6Rs-LmOIZzCl6vC8RWDDRwak05KyyqQojtw9zhPg/exec',   // URL /exec dari deploy Apps Script
+  eventTitle:  'The Wedding of A & B',
+  eventDate:   '09 . 10 . 2026',
+  cloudName:   'ISI_CLOUD_NAME_ANDA',        // dari dashboard Cloudinary
+  uploadPreset:'ISI_UNSIGNED_PRESET_ANDA',   // nama upload preset (mode Unsigned)
+  gasUrl:      'ISI_URL_WEB_APP_GAS_ANDA',   // URL /exec dari deploy Apps Script
   canvasW: 1080,
   canvasH: 1920
 };
@@ -31,9 +31,9 @@ const CONFIG = {
    - { src: 'frames/nama.png' }  -> PNG transparan 1080x1920 buatan Anda
    - { draw: function(ctx,w,h) } -> frame digambar otomatis (bawaan)        */
 const FRAMES = [
-  { id: 'gold', name: 'Elegant Gold', draw: drawGold },
-  { id: 'blush', name: 'Blush Floral', draw: drawBlush },
-  { id: 'noir', name: 'Classic Noir', draw: drawNoir }
+  { id: 'gold', name: 'Elegant Gold', draw: function (c, w, h) { drawGold(c, w, h); } },
+  { id: 'blush', name: 'Blush Floral', draw: function (c, w, h) { drawBlush(c, w, h); } },
+  { id: 'noir', name: 'Classic Noir', draw: function (c, w, h) { drawNoir(c, w, h); } }
   // Contoh frame PNG sendiri: { id:'custom1', name:'Frame Saya', src:'frames/frame1.png' }
 ];
 </script>
